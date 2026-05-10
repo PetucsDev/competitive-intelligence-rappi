@@ -223,18 +223,24 @@ En produccion se recomienda: proxies rotativos (~$30-50/mes) y ejecucion en clou
 
 ---
 
+## Automatizacion Implementada
+
+- **GitHub Actions**: Workflow en `.github/workflows/scrape-schedule.yml` con cron schedule 2x/dia (12:00 y 19:00 hora Mexico, picos de almuerzo y cena). Incluye ejecucion manual via `workflow_dispatch`.
+- **Dashboard interactivo**: Filtros por ciudad, plataforma y producto integrados en el reporte HTML.
+
+---
+
 ## Escalabilidad y Next Steps
 
 Con mas tiempo, el sistema se puede escalar en 3 dimensiones:
 
 ### Corto plazo (1-2 semanas)
-- **Scraping programado**: GitHub Actions cron para ejecucion 2x/dia (pico almuerzo + cena)
 - **Mas selectores**: Invertir en reverse engineering de cada plataforma
 - **Proxies rotativos**: Bright Data o similar para evitar bloqueos
 
 ### Mediano plazo (1-2 meses)
 - **Base de datos temporal**: PostgreSQL/TimescaleDB para series de tiempo
-- **Dashboard interactivo**: Streamlit o Metabase con filtros dinamicos
+- **Dashboard avanzado**: Streamlit o Metabase con graficos interactivos y drill-down
 - **Alertas automaticas**: Slack/email cuando un competidor cambia precios >10%
 - **Mas verticales**: Farmacias, supermercados, retail
 
