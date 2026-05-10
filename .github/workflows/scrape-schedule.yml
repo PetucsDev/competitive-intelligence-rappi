@@ -1,0 +1,83 @@
+name: Competitive Intelligence - Scheduled Scraping
+
+on:
+  # Ejecutar 2 veces al dia: 12:00 y 19:00 hora Mexico (UTC-6)
+  schedule:
+    - cron: '0 18 * * *'  # 12:00 PM Mexico (lunch rush)
+    - cron: '0 1 * * *'   # 7:00 PM Mexico (dinner rush)
+  # Permitir ejecucion manual desde GitHub UI
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Numero de direcciones a scrapear (default: todas)'
+        required: false
+        default: '30'
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run scraper
+        run: npm run scrape
+        env:
+          CI: true
+        continue-on-error: true
+
+      - name: Generate report
+        run: npm run analyze
+
+      - name: Capture evidence screenshots
+        run: npm run evidence
+        continue-on-error: true
+
+      - name: Upload raw data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraping-data-${{ github.run_number }}
+          path: |
+            output/rawData.json
+            output/rawData.csv
+            output/report.html
+            output/insights.json
+          retention-days: 30
+
+      - name: Upload screenshots artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots-${{ github.run_number }}
+          path: screenshots/
+          retention-days: 14
+
+      - name: Upload logs artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 14
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: scrape
+    if: failure()
+    steps:
+      - name: Log failure
+        run: echo "Scraping job failed. Check artifacts for logs and screenshots."

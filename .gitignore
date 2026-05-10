@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Output (regenerable con npm run analyze)
+output/
+
+# Screenshots (regenerable con npm run evidence)
+screenshots/
+
+# Logs
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+
+# Environment
+.env
+.env.local
